@@ -1,11 +1,19 @@
 export default async function handler(req, res) {
   try {
     const response = await fetch(
-      `${process.env.SUPABASE_URL}/rest/v1/bookings?select=quantity`
+      `${process.env.SUPABASE_URL}/rest/v1/bookings?select=quantity`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`
+        }
+      }
     );
 
     if (!response.ok) {
-      throw new Error("Database error");
+      const errorText = await response.text();
+      console.error(errorText);
+      throw new Error("Supabase error");
     }
 
     const bookings = await response.json();
@@ -21,10 +29,10 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    console.error(error);
 
     res.status(500).json({
       error: "Unable to load booking count"
     });
-
   }
 }
