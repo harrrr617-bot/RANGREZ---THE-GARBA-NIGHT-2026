@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rangrez Garba 2026</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:white;
+  background:linear-gradient(#0008,#000b),
+  url("https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1600&q=80")
+  center/cover fixed;
+}
+
+.container{
+  max-width:600px;
+  margin:auto;
+  padding:25px 18px;
+}
+
+.hero{
+  text-align:center;
+  padding:45px 10px 25px;
+}
+
+.hero h1{
+  font-size:42px;
+  margin:0 0 10px;
+}
+
+.hero p{
+  font-size:18px;
+}
+
+.event,.booking{
+  border-radius:18px;
+  padding:25px;
+  margin-bottom:20px;
+}
+
+.event{
+  background:#000a;
+  text-align:center;
+}
+
+.event div{
+  margin:14px 0;
+  font-size:17px;
+}
+
+.booking{
+  background:#fffffff2;
+  color:#222;
+}
+
+.booking h2{
+  text-align:center;
+}
+
+label{
+  display:block;
+  margin:15px 0 6px;
+  font-weight:bold;
+}
+
+input,select{
+  width:100%;
+  padding:13px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:16px;
+}
+
+.price{
+  text-align:center;
+  font-size:26px;
+  font-weight:bold;
+  margin:22px 0;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  border:0;
+  border-radius:10px;
+  background:#e08b25;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="hero">
+<h1>Rangrez Garba 2026</h1>
+<p>Celebrate • Dance • Create Memories</p>
+</div>
+
+<div class="event">
+<div>📅 <b>14 October 2026</b></div>
+<div>⏰ <b>5:30 PM onwards</b></div>
+<div>📍 <b>Shree Devi College, Kenjar</b></div>
+<div>🎟️ <b>Ticket: ₹399</b></div>
+</div>
+
+<div class="booking">
+
+<h2>🎟️ Book Your Ticket</h2>
+
+<form id="bookingForm">
+
+<label>Full Name</label>
+<input id="name" type="text" placeholder="Enter your name" required>
+
+<label>Mobile Number</label>
+<input id="phone" type="tel" maxlength="10"
+placeholder="10-digit mobile number" required>
+
+<label>Email</label>
+<input id="email" type="email"
+placeholder="Enter your email" required>
+
+<label>Number of Tickets</label>
+<select id="quantity">
+<option value="1">1 Ticket</option>
+<option value="2">2 Tickets</option>
+<option value="3">3 Tickets</option>
+<option value="4">4 Tickets</option>
+<option value="5">5 Tickets</option>
+</select>
+
+<div class="price" id="total">₹399</div>
+
+<button type="submit">Continue to Payment</button>
+
+</form>
+</div>
+
+</div>
+
+<script>
+const quantity=document.getElementById("quantity");
+const total=document.getElementById("total");
+
+quantity.addEventListener("change",function(){
+  total.textContent="₹"+(399*Number(this.value));
+});
+
+document.getElementById("bookingForm").addEventListener("submit",function(e){
+  e.preventDefault();
+
+  const phone=document.getElementById("phone").value.trim();
+
+  if(!/^[0-9]{10}$/.test(phone)){
+    alert("Please enter a valid 10-digit mobile number");
+    return;
+  }
+
+  alert("Booking details accepted. Payment will be connected next.");
+});
+</script>
+
+</body>
+</html>
