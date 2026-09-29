@@ -62,6 +62,14 @@ body{
   font-size:17px;
 }
 
+.capacity{
+  margin-top:20px;
+  padding:15px;
+  border-radius:12px;
+  background:rgba(255,255,255,.12);
+  font-size:18px;
+}
+
 .booking{
   background:rgba(255,255,255,.96);
   color:#222;
@@ -107,6 +115,20 @@ button{
   cursor:pointer;
 }
 
+button:disabled{
+  background:#777;
+  cursor:not-allowed;
+}
+
+.soldout{
+  display:none;
+  text-align:center;
+  color:#d00000;
+  font-size:22px;
+  font-weight:bold;
+  margin-top:15px;
+}
+
 .helpline{
   text-align:center;
   margin:25px 0 10px;
@@ -144,6 +166,16 @@ button{
     <div>📍 <b>Shree Devi College, Kenjar</b></div>
 
     <div>🎟️ <b>Ticket: ₹399</b></div>
+
+    <div class="capacity">
+      🎟️ <b>Registration Capacity: 350 Members</b>
+      <br><br>
+      Members Registered:
+      <b id="registered">Loading...</b>
+      <br>
+      Members Remaining:
+      <b id="remaining">Loading...</b>
+    </div>
 
   </div>
 
@@ -189,13 +221,11 @@ button{
       <label for="quantity">Number of Tickets</label>
 
       <select id="quantity">
-
         <option value="1">1 Ticket</option>
         <option value="2">2 Tickets</option>
         <option value="3">3 Tickets</option>
         <option value="4">4 Tickets</option>
         <option value="5">5 Tickets</option>
-
       </select>
 
 
@@ -204,9 +234,14 @@ button{
       </div>
 
 
-      <button type="submit">
+      <button type="submit" id="bookButton">
         Continue to Payment
       </button>
+
+      <div class="soldout" id="soldout">
+        SOLD OUT<br>
+        Registration is closed.
+      </div>
 
     </form>
 
@@ -226,38 +261,150 @@ button{
 
 <script>
 
+const MAX_MEMBERS = 350;
+
 const quantity = document.getElementById("quantity");
 const total = document.getElementById("total");
 
+const registered = document.getElementById("registered");
+const remaining = document.getElementById("remaining");
+
+const bookButton = document.getElementById("bookButton");
+const soldout = document.getElementById("soldout");
+
+
 quantity.addEventListener("change", function(){
 
-  total.textContent = "₹" + (399 * Number(this.value));
+  total.textContent =
+    "₹" + (399 * Number(this.value));
 
 });
 
 
+async function loadBookingCount(){
+
+  try{
+
+    const response = await fetch("/api/booking-count");
+
+    if(!response.ok){
+      throw new Error("Unable to load count");
+    }
+
+    const data = await response.json();
+
+    const booked = Number(data.booked) || 0;
+
+    const left = Math.max(
+      0,
+      MAX_MEMBERS - booked
+    );
+
+    registered.textContent = booked;
+    remaining.textContent = left;
+
+    if(left === 0){
+
+      bookButton.disabled = true;
+      bookButton.style.display = "none";
+      soldout.style.display = "block";
+
+    }else{
+
+      bookButton.disabled = false;
+      bookButton.style.display = "block";
+      soldout.style.display = "none";
+
+    }
+
+  }catch(error){
+
+    registered.textContent = "—";
+    remaining.textContent = "—";
+
+    console.error(error);
+
+  }
+
+}
+
+
 document
 .getElementById("bookingForm")
-.addEventListener("submit", function(e){
+.addEventListener("submit", async function(e){
 
   e.preventDefault();
+
+  const name =
+    document.getElementById("name").value.trim();
 
   const phone =
     document.getElementById("phone").value.trim();
 
-  if(!/^[0-9]{10}$/.test(phone)){
+  const email =
+    document.getElementById("email").value.trim();
 
-    alert("Please enter a valid 10-digit mobile number");
+  const qty =
+    Number(quantity.value);
+
+
+  if(!name || !phone || !email){
+
+    alert("Please fill all details.");
 
     return;
 
   }
 
-  alert(
-    "Booking details accepted. Payment will be connected next."
-  );
+
+  if(!/^[0-9]{10}$/.test(phone)){
+
+    alert("Please enter a valid 10-digit mobile number.");
+
+    return;
+
+  }
+
+
+  try{
+
+    const response = await fetch("/api/booking-count");
+
+    const data = await response.json();
+
+    const booked = Number(data.booked) || 0;
+
+    if(booked + qty > MAX_MEMBERS){
+
+      alert(
+        "Only " +
+        Math.max(0, MAX_MEMBERS - booked) +
+        " members are remaining."
+      );
+
+      loadBookingCount();
+
+      return;
+
+    }
+
+
+    alert(
+      "Your details are ready. Payment will be connected next."
+    );
+
+  }catch(error){
+
+    alert(
+      "Unable to check registration capacity. Please try again."
+    );
+
+  }
 
 });
+
+
+loadBookingCount();
 
 </script>
 
